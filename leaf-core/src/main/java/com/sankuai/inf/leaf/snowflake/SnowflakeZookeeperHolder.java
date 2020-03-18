@@ -54,7 +54,7 @@ public class SnowflakeZookeeperHolder {
             if (stat == null) {
                 //不存在根节点,机器第一次启动,创建/snowflake/ip:port-000000000,并上传数据
                 zk_AddressNode = createNode(curator);
-                //worker id 默认是0
+                //worker id 默认是0，由于是类的field，int会自动初始化为0
                 updateLocalWorkerID(workerID);
                 //定时上报本机时间给forever节点
                 ScheduledUploadData(curator, zk_AddressNode);
@@ -77,8 +77,9 @@ public class SnowflakeZookeeperHolder {
                     if (!checkInitTimeStamp(curator, zk_AddressNode)) {
                         throw new CheckLastTimeException("init timestamp check error,forever node timestamp gt this node time");
                     }
-                    //准备创建临时节点
+                    /** 启动数据上报线程 **/
                     doService(curator);
+                    /** 更新本地workerId **/
                     updateLocalWorkerID(workerID);
                     LOGGER.info("[Old NODE]find forever node have this endpoint ip-{} port-{} workid-{} childnode and start SUCCESS", ip, port, workerID);
                 } else {
@@ -112,6 +113,7 @@ public class SnowflakeZookeeperHolder {
     }
 
     private void ScheduledUploadData(final CuratorFramework curator, final String zk_AddressNode) {
+        /** 启动一个固定线程，3s上报一次数据 **/
         Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
             @Override
             public Thread newThread(Runnable r) {
@@ -124,10 +126,20 @@ public class SnowflakeZookeeperHolder {
             public void run() {
                 updateNewData(curator, zk_AddressNode);
             }
-        }, 1L, 3L, TimeUnit.SECONDS);//每3s上报数据
-
+        }, 1L, 3L, TimeUnit.SECONDS);
     }
 
+    /**
+     * 防止服务器时间倒退
+     * + 查询节点中的数据
+     * + 反序列化后，和本地时间做比较
+     *
+     * 疑惑：上报是3s一次，理论上，如果时间倒退不超过3s，可能通过本方法无法发现
+     * @param curator
+     * @param zk_AddressNode
+     * @return
+     * @throws Exception
+     */
     private boolean checkInitTimeStamp(CuratorFramework curator, String zk_AddressNode) throws Exception {
         byte[] bytes = curator.getData().forPath(zk_AddressNode);
         Endpoint endPoint = deBuildData(new String(bytes));
@@ -137,6 +149,15 @@ public class SnowflakeZookeeperHolder {
 
     /**
      * 创建持久顺序节点 ,并把节点数据放入 value
+     * 节点类型：
+     * PERSISTENT                持久化节点
+     * PERSISTENT_SEQUENTIAL     顺序自动编号持久化节点，这种节点会根据当前已存在的节点数自动加 1
+     * EPHEMERAL                 临时节点， 客户端session超时这类节点就会被自动删除
+     * EPHEMERAL_SEQUENTIAL      临时自动编号节点
+     *
+     * 疑惑：
+     *  + 为什么使用序列节点：新加入的worker自增序号
+     *  + 为什么使用持久化节点：
      *
      * @param curator
      * @return

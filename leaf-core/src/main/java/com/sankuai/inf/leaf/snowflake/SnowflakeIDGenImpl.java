@@ -61,6 +61,7 @@ public class SnowflakeIDGenImpl implements IDGen {
     public synchronized Result get(String key) {
         long timestamp = timeGen();
         if (timestamp < lastTimestamp) {
+            /** 出现时间回退，返回异常 **/
             long offset = lastTimestamp - timestamp;
             if (offset <= 5) {
                 try {
@@ -77,6 +78,7 @@ public class SnowflakeIDGenImpl implements IDGen {
                 return new Result(-3, Status.EXCEPTION);
             }
         }
+        /** 当前毫秒 **/
         if (lastTimestamp == timestamp) {
             sequence = (sequence + 1) & sequenceMask;
             if (sequence == 0) {
@@ -91,7 +93,6 @@ public class SnowflakeIDGenImpl implements IDGen {
         lastTimestamp = timestamp;
         long id = ((timestamp - twepoch) << timestampLeftShift) | (workerId << workerIdShift) | sequence;
         return new Result(id, Status.SUCCESS);
-
     }
 
     protected long tilNextMillis(long lastTimestamp) {
