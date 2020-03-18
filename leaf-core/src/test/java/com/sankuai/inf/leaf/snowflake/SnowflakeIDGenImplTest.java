@@ -18,4 +18,12 @@ public class SnowflakeIDGenImplTest {
             System.out.println(r);
         }
     }
+
+    @Test
+    public void bitTest() {
+        long sequenceBits = 12L;
+        long sequenceMask = ~(-1L << sequenceBits);
+        System.out.println(Long.valueOf(-1).byteValue());
+        System.out.println(~(-1L << sequenceBits));
+    }
 }
