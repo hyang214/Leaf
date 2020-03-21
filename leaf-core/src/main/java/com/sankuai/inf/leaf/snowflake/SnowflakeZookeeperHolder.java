@@ -157,7 +157,11 @@ public class SnowflakeZookeeperHolder {
      *
      * 疑惑：
      *  + 为什么使用序列节点：新加入的worker自增序号
-     *  + 为什么使用持久化节点：
+     *  + 为什么使用持久化节点：下次节点加入，可以继承上次的序号，和本地的文件一致，否则会出现，一个从顺序中的取号，和本地不一致
+     *  + zookeeper顺序节点如何工作：
+     *      + 创建 /test/aaa-的顺序节点，那么会得到 /test/aaa-0000000000
+     *      + 再创建 /test/bbb-的顺序节点，那么会得到 /test/bbb-0000000001
+     *      + 顺序是按照，倒数第二段路径来作为计算父路径的，即 /test
      *
      * @param curator
      * @return
