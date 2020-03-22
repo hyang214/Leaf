@@ -2,6 +2,7 @@
 # 差异
 在美团的Leaf源码基础上，提供更详尽的注释，方便理解和阅读，更进一步学习。
 
+[Leaf：美团分布式ID生成服务开源](https://tech.meituan.com/2019/03/07/open-source-project-leaf.html)
 
 # Leaf
 

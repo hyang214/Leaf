@@ -10,24 +10,61 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * 双buffer
  */
 public class SegmentBuffer {
+    /**
+     *  key: 业务标识，不同业务的发号是隔离的
+     */
     private String key;
-    private Segment[] segments; //双buffer
-    private volatile int currentPos; //当前的使用的segment的index
-    private volatile boolean nextReady; //下一个segment是否处于可切换状态
-    private volatile boolean initOk; //是否初始化完成
-    private final AtomicBoolean threadRunning; //线程是否在运行中
+    /**
+     * 双buffer分段，2个buffer依次用，防止一个buffer耗尽的情况
+     */
+    private Segment[] segments;
+    /**
+     * 当前的使用的segment的index
+     * 通过 currentPox的累加，然后对2取余，来实现2个segment的切换
+     */
+    private volatile int currentPos;
+    /**
+     * 下一个segment是否处于可切换状态
+     */
+    private volatile boolean nextReady;
+    /**
+     * 是否初始化完成
+     */
+    private volatile boolean initOk;
+    /**
+     * 号段拉取线程是否在运行中
+     */
+    private final AtomicBoolean threadRunning;
+    /**
+     * buffer的读写锁
+     */
     private final ReadWriteLock lock;
 
+    /**
+     * 步长
+     */
     private volatile int step;
+    /**
+     * 最小步长
+     */
     private volatile int minStep;
+    /**
+     * 更新时间
+     */
     private volatile long updateTimestamp;
 
     public SegmentBuffer() {
+        /** 创建2个buffer **/
         segments = new Segment[]{new Segment(this), new Segment(this)};
+        /** pos是0，还未开始发号 **/
         currentPos = 0;
+        /** 下一个segment是否处于未就绪 **/
         nextReady = false;
+        /** 未初始化完成 **/
         initOk = false;
+        /** 线程未运行 **/
         threadRunning = new AtomicBoolean(false);
+        /** 可重入读写锁 **/
         lock = new ReentrantReadWriteLock();
     }
 

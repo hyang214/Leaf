@@ -2,10 +2,25 @@ package com.sankuai.inf.leaf.segment.model;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * 号段
+ */
 public class Segment {
+    /**
+     * 号段当前号码
+     */
     private AtomicLong value = new AtomicLong(0);
+    /**
+     * 本号段的最大值
+     */
     private volatile long max;
+    /**
+     * 本号段的size
+     */
     private volatile int step;
+    /**
+     * 号段归属的buffer
+     */
     private SegmentBuffer buffer;
 
     public Segment(SegmentBuffer buffer) {
@@ -40,6 +55,10 @@ public class Segment {
         return buffer;
     }
 
+    /**
+     * 获取剩余可用
+     * @return
+     */
     public long getIdle() {
         return this.getMax() - getValue().get();
     }

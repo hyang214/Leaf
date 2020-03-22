@@ -18,6 +18,15 @@ public class IDAllocDaoImpl implements IDAllocDao {
 
     SqlSessionFactory sqlSessionFactory;
 
+    /**
+     * 配置mybatis
+     * Environment: mybatis的环境配置
+     *      + id: 唯一标识
+     *      + TransactionFactory: 事务工厂
+     *      + DataSource： 数据源
+     * Configuration：mybatis配置类
+     * @param dataSource
+     */
     public IDAllocDaoImpl(DataSource dataSource) {
         TransactionFactory transactionFactory = new JdbcTransactionFactory();
         Environment environment = new Environment("development", transactionFactory, dataSource);
@@ -26,6 +35,10 @@ public class IDAllocDaoImpl implements IDAllocDao {
         sqlSessionFactory = new SqlSessionFactoryBuilder().build(configuration);
     }
 
+    /**
+     * 查询全部配置
+     * @return
+     */
     @Override
     public List<LeafAlloc> getAllLeafAllocs() {
         SqlSession sqlSession = sqlSessionFactory.openSession(false);
@@ -36,6 +49,11 @@ public class IDAllocDaoImpl implements IDAllocDao {
         }
     }
 
+    /**
+     * 更新数据库已经分配最大id，并且返回分配对象
+     * @param tag
+     * @return
+     */
     @Override
     public LeafAlloc updateMaxIdAndGetLeafAlloc(String tag) {
         SqlSession sqlSession = sqlSessionFactory.openSession();
@@ -49,6 +67,13 @@ public class IDAllocDaoImpl implements IDAllocDao {
         }
     }
 
+    /**
+     * 更新数据库已经分配最大id，并且返回分配对象
+     * 与 {@link #updateMaxIdAndGetLeafAlloc} 相比，多了传入的step参数
+     *
+     * @param leafAlloc
+     * @return
+     */
     @Override
     public LeafAlloc updateMaxIdByCustomStepAndGetLeafAlloc(LeafAlloc leafAlloc) {
         SqlSession sqlSession = sqlSessionFactory.openSession();
@@ -62,6 +87,11 @@ public class IDAllocDaoImpl implements IDAllocDao {
         }
     }
 
+    /**
+     * 查询全部业务标识
+     *
+     * @return
+     */
     @Override
     public List<String> getAllTags() {
         SqlSession sqlSession = sqlSessionFactory.openSession(false);

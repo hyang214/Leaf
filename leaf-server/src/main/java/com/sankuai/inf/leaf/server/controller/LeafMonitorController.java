@@ -59,6 +59,10 @@ public class LeafMonitorController {
         return "segment";
     }
 
+    /**
+     * 查询全部配置
+     * @return
+     */
     @RequestMapping(value = "db")
     public String getDb(Model model) {
         SegmentIDGenImpl segmentIDGen = segmentService.getIdGen();
@@ -85,15 +89,15 @@ public class LeafMonitorController {
         Map<String, String> map = new HashMap<>();
         try {
             long snowflakeId = Long.parseLong(snowflakeIdStr);
-
+            /** 时间戳 **/
             long originTimestamp = (snowflakeId >> 22) + 1288834974657L;
             Date date = new Date(originTimestamp);
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
             map.put("timestamp", String.valueOf(originTimestamp) + "(" + sdf.format(date) + ")");
-
+            /** worker序号 **/
             long workerId = (snowflakeId >> 12) ^ (snowflakeId >> 22 << 10);
             map.put("workerId", String.valueOf(workerId));
-
+            /** 毫秒内序号 **/
             long sequence = snowflakeId ^ (snowflakeId >> 12 << 12);
             map.put("sequenceId", String.valueOf(sequence));
         } catch (NumberFormatException e) {
