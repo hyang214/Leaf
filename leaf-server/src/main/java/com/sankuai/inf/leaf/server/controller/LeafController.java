@@ -13,6 +13,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * 发号器服务controller
+ *
+ */
 @RestController
 public class LeafController {
     private Logger logger = LoggerFactory.getLogger(LeafController.class);
@@ -22,16 +26,33 @@ public class LeafController {
     @Autowired
     private SnowflakeService snowflakeService;
 
+    /**
+     * 使用号段发号器进行发号
+     * @param key
+     * @return
+     */
     @RequestMapping(value = "/api/segment/get/{key}")
     public String getSegmentId(@PathVariable("key") String key) {
         return get(key, segmentService.getId(key));
     }
 
+    /**
+     * 使用雪花发号器进行发号
+     * @param key
+     * @return
+     */
     @RequestMapping(value = "/api/snowflake/get/{key}")
     public String getSnowflakeId(@PathVariable("key") String key) {
         return get(key, snowflakeService.getId(key));
     }
 
+    /**
+     * 如果key为空，报异常
+     * 否则，将long的id转换为string
+     * @param key
+     * @param id
+     * @return
+     */
     private String get(@PathVariable("key") String key, Result id) {
         Result result;
         if (key == null || key.isEmpty()) {

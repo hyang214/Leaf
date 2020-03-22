@@ -28,6 +28,11 @@ public class LeafMonitorController {
     @Autowired
     private SegmentService segmentService;
 
+    /**
+     * 查询当前缓存中的号段发号器信息
+     * @param model
+     * @return
+     */
     @RequestMapping(value = "cache")
     public String getCache(Model model) {
         Map<String, SegmentBufferView> data = new HashMap<>();
@@ -60,7 +65,7 @@ public class LeafMonitorController {
     }
 
     /**
-     * 查询全部配置
+     * 查询全部数据库配置
      * @return
      */
     @RequestMapping(value = "db")
@@ -76,6 +81,7 @@ public class LeafMonitorController {
     }
 
     /**
+     * 逆向解析雪花发号
      * the output is like this:
      * {
      *   "timestamp": "1567733700834(2019-09-06 09:35:00.834)",

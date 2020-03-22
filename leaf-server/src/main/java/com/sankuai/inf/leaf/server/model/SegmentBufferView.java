@@ -1,5 +1,8 @@
 package com.sankuai.inf.leaf.server.model;
 
+/**
+ * 号段发号器的每个业务的视图
+ */
 public class SegmentBufferView {
     private String key;
     private long value0;

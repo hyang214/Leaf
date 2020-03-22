@@ -17,6 +17,9 @@ import org.springframework.stereotype.Service;
 import java.sql.SQLException;
 import java.util.Properties;
 
+/**
+ * 号段发号器服务
+ */
 @Service("SegmentService")
 public class SegmentService {
     private Logger logger = LoggerFactory.getLogger(SegmentService.class);
@@ -64,10 +67,19 @@ public class SegmentService {
         }
     }
 
+    /**
+     * 进行发号
+     * @param key
+     * @return
+     */
     public Result getId(String key) {
         return idGen.get(key);
     }
 
+    /**
+     * 获取发号器核心对象
+     * @return
+     */
     public SegmentIDGenImpl getIdGen() {
         if (idGen instanceof SegmentIDGenImpl) {
             return (SegmentIDGenImpl) idGen;

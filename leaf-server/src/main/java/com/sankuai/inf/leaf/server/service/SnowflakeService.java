@@ -13,6 +13,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.Properties;
 
+/**
+ * 雪花发号器服务
+ */
 @Service("SnowflakeService")
 public class SnowflakeService {
     private Logger logger = LoggerFactory.getLogger(SnowflakeService.class);
@@ -20,9 +23,15 @@ public class SnowflakeService {
     private IDGen idGen;
 
     public SnowflakeService() throws InitException {
+        /**
+         * 是否启动雪花
+         */
         Properties properties = PropertyFactory.getProperties();
         boolean flag = Boolean.parseBoolean(properties.getProperty(Constants.LEAF_SNOWFLAKE_ENABLE, "true"));
         if (flag) {
+            /**
+             * 获取zk地址，和本地端口，用于workerId注册和维护
+             */
             String zkAddress = properties.getProperty(Constants.LEAF_SNOWFLAKE_ZK_ADDRESS);
             int port = Integer.parseInt(properties.getProperty(Constants.LEAF_SNOWFLAKE_PORT));
             idGen = new SnowflakeIDGenImpl(zkAddress, port);
@@ -32,11 +41,17 @@ public class SnowflakeService {
                 throw new InitException("Snowflake Service Init Fail");
             }
         } else {
+            /** 没有启动，就放入 零发号器 **/
             idGen = new ZeroIDGen();
             logger.info("Zero ID Gen Service Init Successfully");
         }
     }
 
+    /**
+     * 进行发号
+     * @param key
+     * @return
+     */
     public Result getId(String key) {
         return idGen.get(key);
     }

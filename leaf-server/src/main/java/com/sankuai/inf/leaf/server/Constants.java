@@ -1,5 +1,8 @@
 package com.sankuai.inf.leaf.server;
 
+/**
+ * 配置参数key
+ */
 public class Constants {
     public static final String LEAF_SEGMENT_ENABLE = "leaf.segment.enable";
     public static final String LEAF_JDBC_URL = "leaf.jdbc.url";
