@@ -49,7 +49,8 @@ public class SegmentBuffer {
      */
     private volatile int minStep;
     /**
-     * 更新时间
+     * 更新时间(和当前时间比较，可以得到耗尽一个号段花费的时间)
+     * 用于动态调整step
      */
     private volatile long updateTimestamp;
 

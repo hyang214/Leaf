@@ -234,13 +234,16 @@ public class SegmentIDGenImpl implements IDGen {
             /** leafAlloc中的step为DB中的step **/
             buffer.setMinStep(leafAlloc.getStep());
         } else if (buffer.getUpdateTimestamp() == 0) {
-            /** 第一次 **/
+            /** 初始化后，第二次分配，开始记录上次拉取时间，用于动态调整step **/
             leafAlloc = dao.updateMaxIdAndGetLeafAlloc(key);
             buffer.setUpdateTimestamp(System.currentTimeMillis());
             buffer.setStep(leafAlloc.getStep());
             /** leafAlloc中的step为DB中的step **/
             buffer.setMinStep(leafAlloc.getStep());
         } else {
+            /** 根据发号速度和预期的差异，进行号段step的调整
+             * 大于最大步长不进行调整
+             * **/
             long duration = System.currentTimeMillis() - buffer.getUpdateTimestamp();
             int nextStep = buffer.getStep();
             if (duration < SEGMENT_DURATION) {
@@ -255,13 +258,15 @@ public class SegmentIDGenImpl implements IDGen {
                 nextStep = nextStep / 2 >= buffer.getMinStep() ? nextStep / 2 : nextStep;
             }
             logger.info("leafKey[{}], step[{}], duration[{}mins], nextStep[{}]", key, buffer.getStep(), String.format("%.2f",((double)duration / (1000 * 60))), nextStep);
+            /** 根据调整后的step进行号段的生成 **/
             LeafAlloc temp = new LeafAlloc();
             temp.setKey(key);
             temp.setStep(nextStep);
             leafAlloc = dao.updateMaxIdByCustomStepAndGetLeafAlloc(temp);
             buffer.setUpdateTimestamp(System.currentTimeMillis());
             buffer.setStep(nextStep);
-            buffer.setMinStep(leafAlloc.getStep());//leafAlloc的step为DB中的step
+            /** leafAlloc的step为DB中的step **/
+            buffer.setMinStep(leafAlloc.getStep());
         }
         /** must set value before set max
          * value 设置为eafAlloc.getMaxId() - buffer.getStep()，即更新前的最大号码
